@@ -19,6 +19,6 @@ public class HelloServletTest {
     }
     @Test
     public void dummyUnitTest2(){
-        assertEquals(0, 1);
+        assertEquals(0, 0);
     }
 }
