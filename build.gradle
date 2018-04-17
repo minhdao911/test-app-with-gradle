@@ -20,17 +20,6 @@ plugins {
 // Define the main class for the application
 // mainClassName = 'App'
 
-dependencies {
-    // This dependency is found on compile classpath of this component and consumers.
-    //compile 'com.google.guava:guava:23.0'
-
-    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
-    compileOnly 'org.eclipse.jetty:jetty-runner:9.4.9.v20180320'
-
-    // Use JUnit test framework
-    testCompile 'junit:junit:4.12'
-}
-
 // In this section you declare where to find the dependencies of your project
 repositories {
     // Use jcenter for resolving your dependencies.
@@ -55,3 +44,44 @@ task stage {
     dependsOn clean, war, copyToLib 
 }
 war.mustRunAfter clean		
+
+//sourceSets for testing
+sourceSets {  
+    	integTest {
+        	java.srcDir file('src/integTest/java')
+        	resources.srcDir file('src/integTest/resources')
+    	}
+}
+
+task integTest(type: Test) {  
+    testClassesDirs = sourceSets.integTest.output.classesDirs
+    classpath = sourceSets.integTest.runtimeClasspath
+    mustRunAfter(test)
+    doFirst {
+        logger.quiet("----------\nEntering integration tests...")
+    }
+    beforeTest{ descr ->
+        logger.quiet("--Run test ${descr.className} : ${descr.name}")
+    }    
+    outputs.upToDateWhen {false}    //Re-run tests always
+    ignoreFailures = true
+}
+
+task allTests{
+    dependsOn test, integTest
+}
+
+
+dependencies {
+    // This dependency is found on compile classpath of this component and consumers.
+    //compile 'com.google.guava:guava:23.0'
+
+    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+    compileOnly 'org.eclipse.jetty:jetty-runner:9.4.9.v20180320'
+
+    // Use JUnit test framework
+    testCompile 'junit:junit:4.12'
+    integTestCompile configurations.testCompile
+    integTestRuntime configurations.testRuntime
+}
+
